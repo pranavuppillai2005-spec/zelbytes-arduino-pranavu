@@ -4,7 +4,7 @@
 Arduino Uno R3
 
 ## Processor
-ATmega328P
+ATmega328P 
 
 ## Port
 /dev/cu.usbserial-110
