@@ -1,2 +1,22 @@
-# zelbytes-arduino-pranavu
-Arduino firmware workspace for learning embedded systems fundamentals. Contains Blink and Serial Hello sketches, hardware setup documentation, board configuration details, and version-controlled source code developed as part of the Zelbytes Arduino training program.
+# Zelbytes Arduino Setup
+
+## Board
+Arduino Uno R3
+
+## Processor
+ATmega328P
+
+## Port
+/dev/cu.usbserial-110
+
+## Tasks Completed
+- Installed Arduino IDE 2.x
+- Installed Arduino AVR Boards
+- Uploaded Blink sketch
+- Uploaded Serial Hello sketch
+
+## Folder Structure
+
+src/
+docs/
+README.md
