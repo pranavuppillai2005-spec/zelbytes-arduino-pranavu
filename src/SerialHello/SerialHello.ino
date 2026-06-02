@@ -5,4 +5,4 @@ void setup() {
 void loop() {
   Serial.println("Hello from Arduino!");
   delay(1000);
-}// Serial Hello sketch
+}
