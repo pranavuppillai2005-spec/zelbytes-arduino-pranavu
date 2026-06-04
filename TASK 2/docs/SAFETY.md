@@ -12,9 +12,6 @@
 
 Project inspected and verified for safe relay-controlled solenoid operation.
 
-Supervisor Name: ______________________
+Supervisor Name: Ganesh 
 
-Signature: ____________________________
-
-Date: _________________________________
 
