@@ -1,1 +1,133 @@
+#include <DHT.h>
 
+#define DHTPIN 2
+#define DHTTYPE DHT22
+
+#define SOIL_PIN A1
+#define RELAY_PIN 8
+
+DHT dht(DHTPIN, DHTTYPE);
+
+enum State {
+  IDLE,
+  IRRIGATING,
+  COOLDOWN,
+  FAULT
+};
+
+State currentState = IDLE;
+
+const int SOIL_DRY_THRESHOLD = 600;
+const int SOIL_WET_THRESHOLD = 450;
+
+const float HUMIDITY_THRESHOLD = 50.0;
+
+const unsigned long COOLDOWN_TIME = 30000;
+
+unsigned long cooldownStart = 0;
+
+int dhtFailCount = 0;
+
+void setup() {
+
+  Serial.begin(9600);
+
+  dht.begin();
+
+  pinMode(RELAY_PIN, OUTPUT);
+
+  digitalWrite(RELAY_PIN, HIGH);
+
+  Serial.println("TIME,STATE,SOIL,HUMIDITY");
+}
+
+void loop() {
+
+  int soil = analogRead(SOIL_PIN);
+
+  float humidity = dht.readHumidity();
+
+  bool dhtValid = !isnan(humidity);
+
+  if (!dhtValid) {
+    dhtFailCount++;
+  } else {
+    dhtFailCount = 0;
+  }
+
+  if (dhtFailCount >= 3) {
+    currentState = FAULT;
+  }
+
+  switch (currentState) {
+
+    case IDLE:
+
+      digitalWrite(RELAY_PIN, HIGH);
+
+      if (dhtValid &&
+          soil > SOIL_DRY_THRESHOLD &&
+          humidity < HUMIDITY_THRESHOLD) {
+
+        currentState = IRRIGATING;
+      }
+
+      break;
+
+    case IRRIGATING:
+
+      digitalWrite(RELAY_PIN, LOW);
+
+      if (soil < SOIL_WET_THRESHOLD) {
+
+        digitalWrite(RELAY_PIN, HIGH);
+
+        cooldownStart = millis();
+
+        currentState = COOLDOWN;
+      }
+
+      break;
+
+    case COOLDOWN:
+
+      digitalWrite(RELAY_PIN, HIGH);
+
+      if (millis() - cooldownStart >= COOLDOWN_TIME) {
+
+        currentState = IDLE;
+      }
+
+      break;
+
+    case FAULT:
+
+      digitalWrite(RELAY_PIN, HIGH);
+
+      if (dhtValid) {
+
+        dhtFailCount = 0;
+
+        currentState = IDLE;
+      }
+
+      break;
+  }
+
+  Serial.print(millis());
+  Serial.print(",");
+
+  switch (currentState) {
+    case IDLE: Serial.print("IDLE"); break;
+    case IRRIGATING: Serial.print("IRRIGATING"); break;
+    case COOLDOWN: Serial.print("COOLDOWN"); break;
+    case FAULT: Serial.print("FAULT"); break;
+  }
+
+  Serial.print(",");
+  Serial.print(soil);
+  Serial.print(",");
+  Serial.println(humidity);
+
+  delay(1000);
+}
