@@ -44,4 +44,4 @@ The relay controls the solenoid valve based on soil moisture and humidity readin
 
 ## Author
 
-Pranav P Pillai
+Pranavu P Pillai
