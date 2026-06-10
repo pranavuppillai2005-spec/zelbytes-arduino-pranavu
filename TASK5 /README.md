@@ -1,22 +1,47 @@
+# README.md
 
-# Methodology
+# Smart Irrigation System Using Arduino UNO
 
-1. The Arduino continuously reads soil moisture and humidity values.
+## Overview
 
-2. The system starts in the IDLE state where environmental conditions are monitored.
+This project implements an automatic irrigation system using:
 
-3. If soil moisture exceeds the dry threshold and humidity falls below the configured humidity threshold, the system enters the IRRIGATING state.
+* Arduino UNO
+* Capacitive Soil Moisture Sensor v1.2
+* DHT22 Humidity Sensor
+* 5V Relay Module
+* 12V DC Solenoid Valve
+* Status LED
 
-4. During IRRIGATING, the relay activates the irrigation device until the soil moisture reaches the wet threshold.
+The system uses a state machine with four states:
 
-5. Once sufficient moisture is detected, irrigation stops and the system enters the COOLDOWN state.
+1. IDLE
+2. IRRIGATING
+3. COOLDOWN
+4. FAULT
 
-6. The COOLDOWN state prevents rapid relay switching by enforcing a fixed waiting period before returning to IDLE.
+The relay controls the solenoid valve based on soil moisture and humidity readings.
 
-7. The DHT22 sensor is checked every cycle. If three consecutive sensor read failures occur, the system enters the FAULT state.
+## Features
 
-8. In the FAULT state, irrigation remains disabled to avoid unsafe operation.
+* Soil moisture displayed in percentage
+* Automatic irrigation
+* Relay-controlled solenoid valve
+* DHT22 fault detection
+* Cooldown period after irrigation
+* LED status indication
 
-9. When valid DHT22 readings are restored, the system exits FAULT and returns to IDLE.
+## Hardware
 
-10. State transitions and sensor readings are logged through the Serial Monitor for testing and validation.
+* Arduino UNO
+* Capacitive Soil Moisture Sensor v1.2
+* DHT22
+* 5V Relay Module
+* 12V Solenoid Valve
+* LED
+* 1kΩ Resistor
+* 12V Power Supply
+
+## Author
+
+Pranav P Pillai
