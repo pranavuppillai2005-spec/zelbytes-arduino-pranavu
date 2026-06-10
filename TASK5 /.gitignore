@@ -1,41 +1,12 @@
 # macOS
 .DS_Store
 
-# Windows
-Thumbs.db
-Desktop.ini
+# Arduino
+*.ino.eep
+*.ino.hex
 
-# Arduino IDE build files
-build/
-Build/
-Debug/
-Release/
+# Logs
+*.log
 
 # Temporary files
 *.tmp
-*.temp
-*.bak
-*.old
-*.orig
-
-# Compiled Arduino outputs
-*.hex
-*.elf
-*.bin
-
-# VS Code
-.vscode/
-
-# JetBrains IDEs
-.idea/
-
-# PlatformIO
-.pio/
-.pioenvs/
-
-# Python cache (if used for log analysis)
-__pycache__/
-*.pyc
-
-# Log files generated during testing
-*.log
