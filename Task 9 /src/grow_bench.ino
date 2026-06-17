@@ -1,89 +1,171 @@
-#include <DHT.h>
+/*
+  Firmware v1.0 - Auto Irrigation System
 
-#define DHTPIN 2
-#define DHTTYPE DHT11
+  Features:
+  - Automatic irrigation based on soil moisture threshold
+  - Manual override button
+  - Serial commands:
+      STATUS
+      FORCE_ON
+      FORCE_OFF
+
+  Hardware:
+  Soil Sensor AO -> A0
+  Relay IN       -> D7
+  Push Button    -> D2
+*/
 
 #define SOIL_PIN A0
-#define LDR_PIN A1
-#define RELAY_PIN 8
+#define RELAY_PIN 7
+#define BUTTON_PIN 2
 
-DHT dht(DHTPIN, DHTTYPE);
+const int SOIL_THRESHOLD = 600;
 
-// Calibration values
-const int DRY_SOIL = 300;
-const int WET_SOIL = 800;
-const int SOIL_THRESHOLD = 50; // % moisture threshold
+bool manualMode = false;
+bool pumpState = false;
 
-void setup() {
+unsigned long lastButtonTime = 0;
+const unsigned long debounceDelay = 300;
+
+void setup()
+{
   Serial.begin(9600);
 
-  dht.begin();
-
   pinMode(RELAY_PIN, OUTPUT);
+  pinMode(BUTTON_PIN, INPUT_PULLUP);
 
-  // Active LOW relay
   digitalWrite(RELAY_PIN, HIGH);
 
-  Serial.println("Smart Grow Bench Started");
+  Serial.println("=== Auto Irrigation Firmware v1.0 ===");
+  Serial.println("Commands:");
+  Serial.println("STATUS");
+  Serial.println("FORCE_ON");
+  Serial.println("FORCE_OFF");
 }
 
-void loop() {
+void loop()
+{
+  handleButton();
+  handleSerial();
 
-  float temperature = dht.readTemperature();
-  float humidity = dht.readHumidity();
+  int soilValue = analogRead(SOIL_PIN);
 
-  int soilRaw = analogRead(SOIL_PIN);
-  int ldrValue = analogRead(LDR_PIN);
-
-  int soilPercent = map(
-    soilRaw,
-    DRY_SOIL,
-    WET_SOIL,
-    0,
-    100
-  );
-
-  soilPercent = constrain(soilPercent, 0, 100);
-
-  bool irrigationRequired = soilPercent < SOIL_THRESHOLD;
-
-  if (irrigationRequired) {
-    digitalWrite(RELAY_PIN, LOW);   // Relay ON
-  } else {
-    digitalWrite(RELAY_PIN, HIGH);  // Relay OFF
+  if (!manualMode)
+  {
+    autoIrrigation(soilValue);
   }
 
-  Serial.println("--------------------------------");
+  delay(100);
+}
 
-  if (isnan(temperature) || isnan(humidity)) {
-    Serial.println("DHT11 Read Failed");
-  } else {
-    Serial.print("Temperature: ");
-    Serial.print(temperature);
-    Serial.println(" C");
-
-    Serial.print("Humidity: ");
-    Serial.print(humidity);
-    Serial.println(" %");
+void autoIrrigation(int soilValue)
+{
+  if (soilValue > SOIL_THRESHOLD)
+  {
+    pumpOn();
   }
+  else
+  {
+    pumpOff();
+  }
+}
 
-  Serial.print("Soil Raw: ");
-  Serial.println(soilRaw);
+void handleButton()
+{
+  if (millis() - lastButtonTime < debounceDelay)
+    return;
 
-  Serial.print("Soil Moisture: ");
-  Serial.print(soilPercent);
-  Serial.println(" %");
+  if (digitalRead(BUTTON_PIN) == LOW)
+  {
+    manualMode = !manualMode;
 
-  Serial.print("LDR Value: ");
-  Serial.println(ldrValue);
+    Serial.println();
 
-  Serial.print("Valve State: ");
+    if (manualMode)
+    {
+      Serial.println("MANUAL OVERRIDE ENABLED");
+      Serial.println("Use FORCE_ON or FORCE_OFF");
+    }
+    else
+    {
+      Serial.println("AUTO MODE ENABLED");
+    }
 
-  if (irrigationRequired) {
+    lastButtonTime = millis();
+  }
+}
+
+void handleSerial()
+{
+  if (!Serial.available())
+    return;
+
+  String cmd = Serial.readStringUntil('\n');
+  cmd.trim();
+
+  cmd.toUpperCase();
+
+  if (cmd == "STATUS")
+  {
+    printStatus();
+  }
+  else if (cmd == "FORCE_ON")
+  {
+    manualMode = true;
+    pumpOn();
+
+    Serial.println("Pump Forced ON");
+  }
+  else if (cmd == "FORCE_OFF")
+  {
+    manualMode = true;
+    pumpOff();
+
+    Serial.println("Pump Forced OFF");
+  }
+  else
+  {
+    Serial.println("Unknown Command");
+  }
+}
+
+void printStatus()
+{
+  int soilValue = analogRead(SOIL_PIN);
+
+  Serial.println("------ STATUS ------");
+
+  Serial.print("Mode: ");
+
+  if (manualMode)
+    Serial.println("MANUAL");
+  else
+    Serial.println("AUTO");
+
+  Serial.print("Soil Reading: ");
+  Serial.println(soilValue);
+
+  Serial.print("Threshold: ");
+  Serial.println(SOIL_THRESHOLD);
+
+  Serial.print("Pump State: ");
+
+  if (pumpState)
     Serial.println("ON");
-  } else {
+  else
     Serial.println("OFF");
-  }
 
-  delay(2000);
+  Serial.println("--------------------");
+}
+
+void pumpOn()
+{
+  digitalWrite(RELAY_PIN, LOW);
+  pumpState = true;
+}
+
+void pumpOff()
+{
+  digitalWrite(RELAY_PIN, HIGH);
+  pumpState = false;
 }
