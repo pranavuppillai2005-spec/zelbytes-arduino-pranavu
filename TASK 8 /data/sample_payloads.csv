@@ -1,0 +1,11 @@
+timestamp,device_id,temperature_c,humidity_pct,soil_moisture_pct,co2_ppm
+2026-06-17 10:32:01,pranavu_bench01,24.6,56,50,1119
+2026-06-17 10:32:02,pranavu_bench01,30.3,77,41,1144
+2026-06-17 10:32:03,pranavu_bench01,28.4,56,70,847
+2026-06-17 10:32:04,pranavu_bench01,31.4,65,45,839
+2026-06-17 10:32:05,pranavu_bench01,27.1,67,67,941
+2026-06-17 10:32:06,pranavu_bench01,31.4,68,37,983
+2026-06-17 10:32:07,pranavu_bench01,24.6,73,69,964
+2026-06-17 10:32:08,pranavu_bench01,28.5,53,60,917
+2026-06-17 10:32:09,pranavu_bench01,28.2,63,31,907
+2026-06-17 10:32:10,pranavu_bench01,28.2,73,46,845
